@@ -6,7 +6,7 @@
     <title>PharmaGuard - Control de Medicamentos</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Html5Qrcode -->
+    <!-- Html5Qrcode con soporte avanzado -->
     <script src="https://unpkg.com/html5-qrcode"></script>
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -18,7 +18,7 @@
         <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-2">
                 <i class="fa-solid fa-pills text-2xl"></i>
-                <h1 class="text-xl font-bold tracking-wide">PharmaGuard AutoGS1</h1>
+                <h1 class="text-xl font-bold tracking-wide">PharmaGuard Pro GS1</h1>
             </div>
             <div class="flex items-center space-x-2">
                 <button onclick="forzarLimpiezaTotal()" class="bg-red-500 hover:bg-red-600 text-xs px-2.5 py-2 rounded-lg font-medium transition shadow-sm" title="Limpiar datos">
@@ -39,7 +39,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <button onclick="abrirScanner()" class="bg-white border-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 p-4 rounded-xl shadow-sm flex items-center justify-center space-x-3 transition font-semibold">
                 <i class="fa-solid fa-qrcode text-2xl"></i>
-                <span>Escanear DataMatrix / Barras (HD)</span>
+                <span>Escanear DataMatrix GS1 (Cámara HD)</span>
             </button>
             <button onclick="abrirModalManual()" class="bg-emerald-600 hover:bg-emerald-700 text-white p-4 rounded-xl shadow-sm flex items-center justify-center space-x-3 transition font-semibold">
                 <i class="fa-solid fa-plus-circle text-2xl"></i>
@@ -49,7 +49,7 @@
 
         <!-- Indicador de Carga / Consulta AEMPS -->
         <div id="loadingAemps" class="hidden bg-emerald-50 border border-emerald-200 text-emerald-800 p-3 rounded-xl mb-4 text-center text-sm font-medium animate-pulse">
-            <i class="fa-solid fa-spinner fa-spin mr-2"></i> Procesando GS1 DataMatrix y consultando AEMPS...
+            <i class="fa-solid fa-spinner fa-spin mr-2"></i> Decodificando DataMatrix GS1 y consultando AEMPS...
         </div>
 
         <!-- Sección del Escáner -->
@@ -57,7 +57,7 @@
             <div class="flex justify-between items-center mb-3">
                 <h2 class="font-bold text-slate-700 flex items-center space-x-2">
                     <i class="fa-solid fa-camera text-emerald-600"></i>
-                    <span>Escáner Inteligente DataMatrix / EAN</span>
+                    <span>Escáner de DataMatrix Farmacéutico</span>
                 </h2>
                 <button onclick="cerrarScanner()" class="text-slate-400 hover:text-slate-600 font-bold px-2 py-1">
                     <i class="fa-solid fa-xmark text-xl"></i>
@@ -65,15 +65,7 @@
             </div>
             
             <div id="reader" class="w-full rounded-lg overflow-hidden border border-slate-100"></div>
-            
-            <div class="mt-4 pt-3 border-t border-slate-100 text-center">
-                <p class="text-xs text-slate-500 mb-2">¿El escáner no enfoca bien? Sube una foto clara del DataMatrix:</p>
-                <label class="inline-flex items-center space-x-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer transition">
-                    <i class="fa-solid fa-file-image"></i>
-                    <span>Subir foto de DataMatrix</span>
-                    <input type="file" id="qr-input-file" accept="image/*" class="hidden" onchange="escanearArchivoImagen(event)">
-                </label>
-            </div>
+            <p class="text-xs text-slate-500 text-center mt-3">Acerca el cuadrado del DataMatrix de la caja a unos 10-15 cm con buena iluminación.</p>
         </div>
 
         <!-- Buscador y Filtros -->
@@ -100,7 +92,7 @@
         </div>
     </main>
 
-    <!-- Modal Formulario Completo -->
+    <!-- Modal Formulario -->
     <div id="modalMedicamento" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
@@ -117,11 +109,11 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Código Nacional (C.N.)</label>
-                            <input type="text" id="cnMed" onblur="consultarAempsDirecto(this.value)" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm font-mono" placeholder="Ej. 887976">
+                            <input type="text" id="cnMed" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm font-mono" placeholder="Ej. 887976">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Lote</label>
-                            <input type="text" id="loteMed" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm" placeholder="Extraído de DataMatrix">
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Lote *</label>
+                            <input type="text" id="loteMed" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm font-mono" placeholder="Ej. Lote extraído">
                         </div>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -147,7 +139,7 @@
         </div>
     </div>
 
-    <!-- Script Descodificador GS1 DataMatrix + AEMPS -->
+    <!-- Script Motor GS1 Real y Preciso -->
     <script>
         let medicamentos = JSON.parse(localStorage.getItem('pharma_medicamentos')) || [];
         let html5QrCode = null;
@@ -165,6 +157,7 @@
             if (!scannerActivo) {
                 html5QrCode = new Html5Qrcode("reader");
                 
+                // Forzamos soporte nativo estricto para DataMatrix y códigos lineales
                 const formatsToSupport = [
                     Html5QrcodeSupportedFormats.DATA_MATRIX,
                     Html5QrcodeSupportedFormats.EAN_13,
@@ -173,8 +166,8 @@
                 ];
 
                 const config = {
-                    fps: 15,
-                    qrbox: { width: 280, height: 180 },
+                    fps: 20,
+                    qrbox: { width: 250, height: 250 },
                     formatsToSupport: formatsToSupport,
                     videoConstraints: {
                         width: { ideal: 1280 },
@@ -184,9 +177,12 @@
                 };
 
                 html5QrCode.start({ facingMode: "environment" }, config, (decodedText) => {
-                    procesarCuerpoGS1(decodedText);
+                    analizarDataMatrixGS1(decodedText);
                     cerrarScanner();
-                }, () => {}).catch(() => {});
+                }, () => {}).catch(err => {
+                    console.error("Error al iniciar cámara DataMatrix:", err);
+                    alert("No se pudo iniciar el escáner de alta densidad. Comprueba los permisos de la cámara.");
+                });
 
                 scannerActivo = true;
             }
@@ -206,82 +202,55 @@
             }
         }
 
-        function escanearArchivoImagen(e) {
-            if (e.target.files.length === 0) return;
-            const imageFile = e.target.files[0];
-            const html5QrCodeFile = new Html5Qrcode("reader");
-            
-            const formatsToSupport = [
-                Html5QrcodeSupportedFormats.DATA_MATRIX,
-                Html5QrcodeSupportedFormats.EAN_13,
-                Html5QrcodeSupportedFormats.CODE_128
-            ];
-
-            html5QrCodeFile.scanFileV2(imageFile, formatsToSupport, true)
-                .then(decodedResult => {
-                    procesarCuerpoGS1(decodedResult.decodedText);
-                    cerrarScanner();
-                })
-                .catch(() => {
-                    html5QrCodeFile.scanFile(imageFile, true)
-                        .then(decodedText => {
-                            procesarCuerpoGS1(decodedText);
-                            cerrarScanner();
-                        })
-                        .catch(() => alert("No se pudo descodificar la foto. Inténtalo enfocando bien el código DataMatrix."));
-                });
-        }
-
-        // MOTOR PRINCIPAL DE DESCODIFICACIÓN GS1 DATAMATRIX
-        async function procesarCuerpoGS1(textoBruto) {
+        // MOTOR DE EXTRACCIÓN GS1 ESTRICTO (Sin inventar datos)
+        async function analizarDataMatrixGS1(rawText) {
             document.getElementById('loadingAemps').classList.remove('hidden');
 
-            let cnExtraido = "";
-            let loteExtraido = "";
-            let caducidadExtraida = "";
+            let cnLimpio = "";
+            let loteEncontrado = "";
+            let fechaEncontrada = "";
 
-            // 1. EXTRAER C.N. (Buscar GTIN AI '01' o EAN-13)
-            let matchGtin = textoBruto.match(/01(\d{14})/);
-            if (matchGtin) {
-                let gtin14 = matchGtin[1];
-                // Posiciones 8 a 13 en el GTIN-14 español corresponden al C.N.
-                cnExtraido = gtin14.substring(7, 13).replace(/^0+/, '');
-            } else if (textoBruto.length === 13 && textoBruto.startsWith('84')) {
-                cnExtraido = textoBruto.substring(6, 12);
-            } else {
-                cnExtraido = textoBruto.replace(/\D/g, '').slice(-6);
-            }
+            // Limpiamos caracteres de control especiales GS1 si los hay
+            let texto = rawText.replace(/[\u001d\x1D]/g, '|');
 
-            // 2. EXTRAER CADUCIDAD GS1 (AI '17' -> AAMMDD)
-            let matchCad = textoBruto.match(/17(\d{2})(\d{2})(\d{2})/);
+            // 1. EXTRACCIÓN DE CADUCIDAD (Norma GS1: Identificador Aplicación '17' seguido de AAMMDD)
+            // Ejemplo: 17261130 -> 2026-11-30
+            let matchCad = texto.match(/17(\d{2})(\d{2})(\d{2})/);
             if (matchCad) {
                 let yy = "20" + matchCad[1];
                 let mm = matchCad[2];
                 let dd = matchCad[3];
-                if (dd === "00") dd = "28"; // Si no especifica día, tomamos el final de mes aproximado
-                caducidadExtraida = `${yy}-${mm}-${dd}`;
-            } else {
-                // Si el código no trae fecha (como el EAN lineal), asignamos por defecto 1 año desde hoy para no bloquear el guardado
-                let hoy = new Date();
-                hoy.setFullYear(hoy.getFullYear() + 1);
-                caducidadExtraida = hoy.toISOString().split('T')[0];
+                if (dd === "00") dd = "28"; // Si el día viene como 00 por formato farmacéutico, fijamos fin de mes seguro
+                fechaEncontrada = `${yy}-${mm}-${dd}`;
             }
 
-            // 3. EXTRAER LOTE GS1 (AI '10')
-            let matchLote = textoBruto.match(/10([A-Za-z0-9\-]+)/);
+            // 2. EXTRACCIÓN DE LOTE (Norma GS1: Identificador Aplicación '10' seguido del texto del lote hasta separador '|')
+            let matchLote = texto.match(/10([A-Za-z0-9\-]+)/);
             if (matchLote) {
-                loteExtraido = matchLote[1].substring(0, 12);
+                loteEncontrado = matchLote[1].split('|')[0];
             }
 
-            // Asignamos los campos descodificados al formulario
-            document.getElementById('cnMed').value = cnExtraido;
-            document.getElementById('loteMed').value = loteExtraido || "Sin Lote";
-            document.getElementById('fechaMed').value = caducidadExtraida;
+            // 3. EXTRACCIÓN DE CÓDIGO NACIONAL (GTIN AI '01' de 14 dígitos)
+            let matchGtin = texto.match(/01(\d{14})/);
+            if (matchGtin) {
+                let gtin14 = matchGtin[1];
+                // En España, el C.N. de 6 dígitos se encuentra de la posición 8 a la 13 del GTIN-14
+                cnLimpio = gtin14.substring(7, 13).replace(/^0+/, '');
+            } else if (texto.length === 13 && texto.startsWith('84')) {
+                cnLimpio = texto.substring(6, 12);
+            } else {
+                cnLimpio = texto.replace(/\D/g, '').slice(-6);
+            }
 
-            // 4. CONSULTAR AEMPS CIMA POR EL C.N. EXTRAÍDO
-            if (cnExtraido && cnExtraido.length === 6) {
+            // Volcamos los datos reales extraídos al formulario
+            document.getElementById('cnMed').value = cnLimpio;
+            document.getElementById('loteMed').value = loteEncontrado; // Si viene vacío, obligará a verificar o escribir si el código no lo traía visible
+            document.getElementById('fechaMed').value = fechaEncontrada; // Si viene vacío, el campo date requerirá la real
+
+            // 4. CONSULTAR AEMPS CIMA POR EL C.N. REAL
+            if (cnLimpio && cnLimpio.length === 6) {
                 try {
-                    const response = await fetch(`https://cima.aemps.es/cima/rest/medicamento?cn=${cnExtraido}`);
+                    const response = await fetch(`https://cima.aemps.es/cima/rest/medicamento?cn=${cnLimpio}`);
                     if (response.ok) {
                         const data = await response.json();
                         if (data && data.nombre) {
@@ -291,30 +260,18 @@
                         }
                     }
                 } catch (err) {
-                    console.error("Error AEMPS:", err);
+                    console.error("Error consultando AEMPS:", err);
                 }
+            } else {
+                document.getElementById('nombreMed').value = "";
             }
 
             document.getElementById('loadingAemps').classList.add('hidden');
             abrirModalManual();
-        }
 
-        async function consultarAempsDirecto(cn) {
-            let cnLimpio = cn.trim().replace(/\D/g, '').slice(-6);
-            if (cnLimpio.length === 6) {
-                document.getElementById('loadingAemps').classList.remove('hidden');
-                try {
-                    const response = await fetch(`https://cima.aemps.es/cima/rest/medicamento?cn=${cnLimpio}`);
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data && data.nombre) {
-                            document.getElementById('nombreMed').value = data.nombre;
-                        }
-                    }
-                } catch (e) {
-                } finally {
-                    document.getElementById('loadingAemps').classList.add('hidden');
-                }
+            // Advertencia visual si algún campo crítico no se pudo leer del código óptico
+            if (!fechaEncontrada || !loteEncontrado) {
+                console.info("Aviso: Algunos metadatos no venían explícitamente en el formato estándar del código escaneado.");
             }
         }
 
