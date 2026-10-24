@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PharmaGuard - Control de Medicamentos</title>
-    <!-- Tailwind CSS para el diseño -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Librería Html5Qrcode para escaneo avanzado de QR y códigos de barras -->
+    <!-- Html5Qrcode -->
     <script src="https://unpkg.com/html5-qrcode"></script>
-    <!-- Iconos FontAwesome -->
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen pb-12">
@@ -30,7 +30,7 @@
     <!-- Contenido Principal -->
     <main class="max-w-4xl mx-auto px-4 mt-6">
 
-        <!-- Panel de Acciones Rápidas -->
+        <!-- Panel de Acciones -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <button onclick="abrirScanner()" class="bg-white border-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 p-4 rounded-xl shadow-sm flex items-center justify-center space-x-3 transition font-semibold">
                 <i class="fa-solid fa-qrcode text-2xl"></i>
@@ -42,7 +42,7 @@
             </button>
         </div>
 
-        <!-- Sección del Escáner (Oculta por defecto) -->
+        <!-- Sección del Escáner -->
         <div id="scannerContainer" class="hidden bg-white p-4 rounded-2xl shadow-md mb-6 border border-slate-200">
             <div class="flex justify-between items-center mb-3">
                 <h2 class="font-bold text-slate-700 flex items-center space-x-2">
@@ -56,9 +56,9 @@
             
             <div id="reader" class="w-full rounded-lg overflow-hidden border border-slate-100"></div>
             
-            <!-- Opción alternativa: Subir foto si la cámara no enfoca bien -->
+            <!-- Opción alternativa: Subir foto -->
             <div class="mt-4 pt-3 border-t border-slate-100 text-center">
-                <p class="text-xs text-slate-500 mb-2">¿El código se resiste? Hazle una foto con tu cámara normal y súbela aquí:</p>
+                <p class="text-xs text-slate-500 mb-2">¿El código se resiste? Sube una foto del código de barras / QR:</p>
                 <label class="inline-flex items-center space-x-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer transition">
                     <i class="fa-solid fa-file-image"></i>
                     <span>Subir foto de código / QR</span>
@@ -71,7 +71,7 @@
         <div class="bg-white p-4 rounded-2xl shadow-sm mb-6 border border-slate-200 flex flex-col sm:flex-row gap-3">
             <div class="relative flex-1">
                 <i class="fa-solid fa-search absolute left-3 top-3.5 text-slate-400"></i>
-                <input type="text" id="buscador" oninput="filtrarMedicamentos()" placeholder="Buscar por nombre o lote..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm">
+                <input type="text" id="buscador" oninput="filtrarMedicamentos()" placeholder="Buscar por nombre, C.N. o lote..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm">
             </div>
             <select id="filtroEstado" onchange="filtrarMedicamentos()" class="bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl text-sm focus:outline-none focus:border-emerald-500">
                 <option value="todos">Todos los estados</option>
@@ -87,15 +87,13 @@
                 <h2 class="font-bold text-slate-700 text-sm uppercase tracking-wider">Inventario de Medicamentos</h2>
                 <span id="contadorMeds" class="text-xs bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full font-semibold">0 items</span>
             </div>
-            <div id="listaMedicamentos" class="divide-y divide-slate-100">
-                <!-- Se rellena dinámicamente -->
-            </div>
+            <div id="listaMedicamentos" class="divide-y divide-slate-100"></div>
         </div>
     </main>
 
-    <!-- Modal Formulario Manual -->
+    <!-- Modal Formulario Completo -->
     <div id="modalMedicamento" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl animate-scale">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
                 <h3 id="modalTitulo" class="font-bold text-lg text-slate-800">Registrar Medicamento</h3>
                 <button onclick="cerrarModalManual()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
@@ -104,16 +102,32 @@
                 <input type="hidden" id="medId">
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nombre del Medicamento</label>
-                        <input type="text" id="nombreMed" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm" placeholder="Ej. Paracetamol 1g">
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nombre del Medicamento *</label>
+                        <input type="text" id="nombreMed" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm" placeholder="Ej. Ibuprofeno 600mg">
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Código Nacional (C.N.)</label>
+                            <input type="text" id="cnMed" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm" placeholder="Ej. 654321">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Lote</label>
+                            <input type="text" id="loteMed" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm" placeholder="Ej. L-89234">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Dosis</label>
+                            <input type="text" id="dosisMed" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm" placeholder="Ej. 1 comprimido cada 8h">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Fecha de Caducidad *</label>
+                            <input type="date" id="fechaMed" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm">
+                        </div>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Lote / Código</label>
-                        <input type="text" id="loteMed" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm" placeholder="Ej. L-89234 o Código de barras">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Fecha de Caducidad</label>
-                        <input type="date" id="fechaMed" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm">
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Instrucciones / Notas</label>
+                        <textarea id="notasMed" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm" placeholder="Ej. Tomar con alimentos. Guardar en lugar fresco."></textarea>
                     </div>
                 </div>
                 <div class="mt-6 flex space-x-3">
@@ -124,7 +138,7 @@
         </div>
     </div>
 
-    <!-- Script de la Aplicación -->
+    <!-- Script -->
     <script>
         let medicamentos = JSON.parse(localStorage.getItem('pharma_medicamentos')) || [];
         let html5QrCode = null;
@@ -132,48 +146,29 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             renderizarMedicamentos();
-            verificarNotificacionesPendientes();
             if (Notification.permission === "granted") {
                 document.getElementById('txtNotifBtn').innerText = "Alertas Activas";
             }
         });
 
-        // Configuración de la cámara con resolución HD forzada y soporte ampliado de formatos
         function abrirScanner() {
-            const container = document.getElementById('scannerContainer');
-            container.classList.remove('hidden');
-            
+            document.getElementById('scannerContainer').classList.remove('hidden');
             if (!scannerActivo) {
                 html5QrCode = new Html5Qrcode("reader");
-                
-                // Forzamos resolución HD (1280x720) para mejorar la nitidez en códigos pequeños
-                const configConfig = {
+                const config = {
                     fps: 15,
                     qrbox: { width: 250, height: 150 },
-                    aspectRatio: 1.0,
                     videoConstraints: {
                         width: { ideal: 1280 },
                         height: { ideal: 720 },
-                        facingMode: "environment" // Usa la cámara trasera por defecto en móviles
+                        facingMode: "environment"
                     }
                 };
 
-                html5QrCode.start(
-                    { facingMode: "environment" },
-                    configConfig,
-                    (decodedText, decodedResult) => {
-                        // Éxito al leer código
-                        manejarCodigoEscaneado(decodedText);
-                        cerrarScanner();
-                    },
-                    (errorMessage) => {
-                        // Errores de lectura por frame (se ignoran para que siga intentando enfocar fluidamente)
-                    }
-                ).catch(err => {
-                    console.error("Error al iniciar la cámara:", err);
-                    alert("No se pudo iniciar la cámara. Comprueba los permisos de tu navegador.");
-                });
-                
+                html5QrCode.start({ facingMode: "environment" }, config, (decodedText) => {
+                    manejarCodigoEscaneado(decodedText);
+                    cerrarScanner();
+                }, () => {});
                 scannerActivo = true;
             }
         }
@@ -183,8 +178,7 @@
                 html5QrCode.stop().then(() => {
                     scannerActivo = false;
                     document.getElementById('scannerContainer').classList.add('hidden');
-                }).catch(err => {
-                    console.error("Error al detener el escáner", err);
+                }).catch(() => {
                     document.getElementById('scannerContainer').classList.add('hidden');
                     scannerActivo = false;
                 });
@@ -193,30 +187,25 @@
             }
         }
 
-        // Nueva función: Escanear archivo de imagen subido (por si la cámara en directo no enfoca bien)
         function escanearArchivoImagen(e) {
             if (e.target.files.length === 0) return;
             const imageFile = e.target.files[0];
-            
             const html5QrCodeFile = new Html5Qrcode("reader");
             html5QrCodeFile.scanFile(imageFile, true)
                 .then(decodedText => {
                     manejarCodigoEscaneado(decodedText);
                     cerrarScanner();
                 })
-                .catch(err => {
-                    alert("No se pudo leer ningún código o QR en la imagen. Asegúrate de que se vea nítido e inténtalo de nuevo.");
-                    console.error(err);
-                });
+                .catch(() => alert("No se pudo leer ningún código o QR en la imagen."));
         }
 
         function manejarCodigoEscaneado(codigo) {
-            document.getElementById('loteMed').value = codigo;
-            document.getElementById('nombreMed').value = "Medicamento (" + codigo.substring(0, 8) + ")";
+            // Rellenamos el Código Nacional (C.N.) automáticamente con el código escaneado sin inventar nombres
+            document.getElementById('cnMed').value = codigo;
+            document.getElementById('nombreMed').value = ""; // Limpiamos para que el usuario escriba el nombre real
             abrirModalManual();
         }
 
-        // Gestión del Modal Manual
         function abrirModalManual() {
             document.getElementById('modalMedicamento').classList.remove('hidden');
             if(!document.getElementById('medId').value) {
@@ -232,155 +221,115 @@
             document.getElementById('medId').value = '';
         }
 
-        // Guardar o Editar
         function guardarMedicamento(e) {
             e.preventDefault();
             const id = document.getElementById('medId').value;
             const nombre = document.getElementById('nombreMed').value;
+            const cn = document.getElementById('cnMed').value || 'Sin C.N.';
             const lote = document.getElementById('loteMed').value || 'Sin lote';
+            const dosis = document.getElementById('dosisMed').value || '';
             const fecha = document.getElementById('fechaMed').value;
+            const notas = document.getElementById('notasMed').value || '';
 
             if (id) {
                 const index = medicamentos.findIndex(m => m.id == id);
-                if (index !== -1) {
-                    medicamentos[index] = { id: Number(id), nombre, lote, fecha };
-                }
+                if (index !== -1) medicamentos[index] = { id: Number(id), nombre, cn, lote, dosis, fecha, notas };
             } else {
-                const nuevoMed = {
-                    id: Date.now(),
-                    nombre,
-                    lote,
-                    fecha
-                };
-                medicamentos.push(nuevoMed);
+                medicamentos.push({ id: Date.now(), nombre, cn, lote, dosis, fecha, notas });
             }
 
             localStorage.setItem('pharma_medicamentos', JSON.stringify(medicamentos));
             cerrarModalManual();
             renderizarMedicamentos();
-            verificarNotificacionesPendientes();
         }
 
-        // Calcular estado y días restantes
         function calcularEstado(fechaStr) {
             const hoy = new Date();
             hoy.setHours(0,0,0,0);
             const fechaCad = new Date(fechaStr);
             fechaCad.setHours(0,0,0,0);
+            const dias = Math.ceil((fechaCad - hoy) / (1000 * 60 * 60 * 24));
 
-            const diferenciaDias = Math.ceil((fechaCad - hoy) / (1000 * 60 * 60 * 24));
-
-            if (diferenciaDias < 0) {
-                return { clase: 'bg-red-50 text-red-700 border-red-200', icono: 'fa-circle-xmark text-red-500', texto: 'Caducado', tipo: 'caducado' };
-            } else if (diferenciaDias <= 30) {
-                return { clase: 'bg-amber-50 text-amber-700 border-amber-200', icono: 'fa-triangle-exclamation text-amber-500', texto: `Vence en ${diferenciaDias} días`, tipo: 'proximo' };
-            } else {
-                return { clase: 'bg-emerald-50 text-emerald-700 border-emerald-200', icono: 'fa-circle-check text-emerald-500', texto: `Correcto (${diferenciaDias} días)`, tipo: 'activo' };
-            }
+            if (dias < 0) return { clase: 'bg-red-50 text-red-700 border-red-200', icono: 'fa-circle-xmark text-red-500', texto: 'Caducado', tipo: 'caducado' };
+            if (dias <= 30) return { clase: 'bg-amber-50 text-amber-700 border-amber-200', icono: 'fa-triangle-exclamation text-amber-500', texto: `Vence en ${dias} días`, tipo: 'proximo' };
+            return { clase: 'bg-emerald-50 text-emerald-700 border-emerald-200', icono: 'fa-circle-check text-emerald-500', texto: `Correcto (${dias} días)`, tipo: 'activo' };
         }
 
-        // Renderizado de la lista
         function renderizarMedicamentos() {
             const lista = document.getElementById('listaMedicamentos');
             const buscador = document.getElementById('buscador').value.toLowerCase();
             const filtroEstado = document.getElementById('filtroEstado').value;
 
             const filtrados = medicamentos.filter(med => {
-                const coincideTexto = med.nombre.toLowerCase().includes(buscador) || med.lote.toLowerCase().includes(buscador);
-                const estadoObj = calcularEstado(med.fecha);
-                const coincideEstado = filtroEstado === 'todos' || estadoObj.tipo === filtroEstado;
-                return coincideTexto && coincideEstado;
+                const txt = med.nombre.toLowerCase().includes(buscador) || med.cn.toLowerCase().includes(buscador) || med.lote.toLowerCase().includes(buscador);
+                const est = calcularEstado(med.fecha);
+                return txt && (filtroEstado === 'todos' || est.tipo === filtroEstado);
             });
 
             document.getElementById('contadorMeds').innerText = `${filtrados.length} items`;
-
             if (filtrados.length === 0) {
-                lista.innerHTML = `<div class="p-8 text-center text-slate-400 text-sm"><i class="fa-solid fa-box-open text-3xl mb-2"></i><p>No se encontraron medicamentos registrados.</p></div>`;
+                lista.innerHTML = `<div class="p-8 text-center text-slate-400 text-sm"><i class="fa-solid fa-box-open text-3xl mb-2"></i><p>No se encontraron medicamentos.</p></div>`;
                 return;
             }
 
             lista.innerHTML = filtrados.map(med => {
-                const estado = calcularEstado(med.fecha);
+                const est = calcularEstado(med.fecha);
                 return `
-                    <div class="p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 hover:bg-slate-50/80 transition">
+                    <div class="p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 hover:bg-slate-50 transition">
                         <div class="flex items-start space-x-3">
-                            <div class="mt-1"><i class="fa-solid ${estado.icono} text-lg"></i></div>
+                            <div class="mt-1"><i class="fa-solid ${est.icono} text-lg"></i></div>
                             <div>
                                 <h3 class="font-bold text-slate-800 text-sm">${med.nombre}</h3>
-                                <p class="text-xs text-slate-500">Lote: <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded">${med.lote}</span> • Caduca: ${med.fecha}</p>
+                                <p class="text-xs text-slate-500 space-x-2">
+                                    <span>C.N.: <strong class="text-slate-700 font-mono">${med.cn}</strong></span>
+                                    <span>• Lote: <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded">${med.lote}</span></span>
+                                    ${med.dosis ? `<span>• Dosis: <em>${med.dosis}</em></span>` : ''}
+                                </p>
+                                <p class="text-xs text-slate-500 mt-0.5">Caduca: ${med.fecha} ${med.notas ? `• Notas: ${med.notas}` : ''}</p>
                             </div>
                         </div>
                         <div class="flex items-center space-x-2 w-full sm:w-auto justify-between sm:justify-end">
-                            <span class="text-xs px-2.5 py-1 rounded-full border font-medium ${estado.clase}">${estado.texto}</span>
+                            <span class="text-xs px-2.5 py-1 rounded-full border font-medium ${est.clase}">${est.texto}</span>
                             <div class="flex space-x-1">
-                                <button onclick="editarMedicamento(${med.id})" class="p-1.5 text-slate-400 hover:text-emerald-600 rounded-lg transition" title="Editar"><i class="fa-solid fa-pen"></i></button>
-                                <button onclick="eliminarMedicamento(${med.id})" class="p-1.5 text-slate-400 hover:text-red-600 rounded-lg transition" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                                <button onclick="editarMedicamento(${med.id})" class="p-1.5 text-slate-400 hover:text-emerald-600 rounded-lg" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="eliminarMedicamento(${med.id})" class="p-1.5 text-slate-400 hover:text-red-600 rounded-lg" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                             </div>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             }).join('');
         }
 
-        function filtrarMedicamentos() {
-            renderizarMedicamentos();
-        }
+        function filtrarMedicamentos() { renderizarMedicamentos(); }
 
         function editarMedicamento(id) {
             const med = medicamentos.find(m => m.id === id);
             if (med) {
                 document.getElementById('medId').value = med.id;
                 document.getElementById('nombreMed').value = med.nombre;
+                document.getElementById('cnMed').value = med.cn;
                 document.getElementById('loteMed').value = med.lote;
+                document.getElementById('dosisMed').value = med.dosis;
                 document.getElementById('fechaMed').value = med.fecha;
+                document.getElementById('notasMed').value = med.notas;
                 document.getElementById('modalTitulo').innerText = "Editar Medicamento";
                 abrirModalManual();
             }
         }
 
         function eliminarMedicamento(id) {
-            if (confirm("¿Estás seguro de que deseas eliminar este medicamento?")) {
+            if (confirm("¿Deseas eliminar este medicamento?")) {
                 medicamentos = medicamentos.filter(m => m.id !== id);
                 localStorage.setItem('pharma_medicamentos', JSON.stringify(medicamentos));
                 renderizarMedicamentos();
-                verificarNotificacionesPendientes();
             }
         }
 
-        // Sistema de Notificaciones Web (Notification API)
         function solicitarPermisoNotificaciones() {
-            if (!("Notification" in window)) {
-                alert("Este navegador no soporta notificaciones de escritorio.");
-                return;
-            }
-
+            if (!("Notification" in window)) return alert("Tu navegador no soporta notificaciones.");
             Notification.requestPermission().then(permission => {
                 if (permission === "granted") {
                     document.getElementById('txtNotifBtn').innerText = "Alertas Activas";
-                    new Notification("PharmaGuard Activado", {
-                        body: "Te avisaremos cuando algún medicamento esté próximo a caducar.",
-                        icon: "https://cdn-icons-png.flaticon.com/512/822/822143.png"
-                    });
-                } else {
-                    alert("Has denegado los permisos de notificación.");
-                }
-            });
-        }
-
-        function verificarNotificacionesPendientes() {
-            if (Notification.permission !== "granted") return;
-
-            const hoy = new Date();
-            hoy.setHours(0,0,0,0);
-
-            medicamentos.forEach(med => {
-                const fechaCad = new Date(med.fecha);
-                fechaCad.setHours(0,0,0,0);
-                const diferenciaDias = Math.ceil((fechaCad - hoy) / (1000 * 60 * 60 * 24));
-
-                if (diferenciaDias <= 30 && diferenciaDias >= 0) {
-                    // Evitamos spamear mandando una por cada uno si ya se revisó, pero lanzamos alerta general
-                    console.log(`Alerta: ${med.nombre} vence en ${diferenciaDias} días.`);
+                    new Notification("PharmaGuard Activado", { body: "Te avisaremos de las caducidades." });
                 }
             });
         }
