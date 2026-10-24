@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PharmaGuard - Control de Medicamentos</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Html5Qrcode -->
     <script src="https://unpkg.com/html5-qrcode"></script>
-    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen pb-12">
@@ -47,7 +44,7 @@
             <div class="flex justify-between items-center mb-3">
                 <h2 class="font-bold text-slate-700 flex items-center space-x-2">
                     <i class="fa-solid fa-camera text-emerald-600"></i>
-                    <span>Escáner de Medicamentos</span>
+                    <span>Escáner Inteligente de Medicamentos</span>
                 </h2>
                 <button onclick="cerrarScanner()" class="text-slate-400 hover:text-slate-600 font-bold px-2 py-1">
                     <i class="fa-solid fa-xmark text-xl"></i>
@@ -58,10 +55,10 @@
             
             <!-- Opción alternativa: Subir foto -->
             <div class="mt-4 pt-3 border-t border-slate-100 text-center">
-                <p class="text-xs text-slate-500 mb-2">¿El código se resiste? Sube una foto del código de barras / QR:</p>
+                <p class="text-xs text-slate-500 mb-2">¿El código se resiste? Sube una foto clara del código de barras:</p>
                 <label class="inline-flex items-center space-x-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer transition">
                     <i class="fa-solid fa-file-image"></i>
-                    <span>Subir foto de código / QR</span>
+                    <span>Subir foto de código</span>
                     <input type="file" id="qr-input-file" accept="image/*" class="hidden" onchange="escanearArchivoImagen(event)">
                 </label>
             </div>
@@ -91,7 +88,7 @@
         </div>
     </main>
 
-    <!-- Modal Formulario Completo -->
+    <!-- Modal Formulario -->
     <div id="modalMedicamento" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
@@ -108,7 +105,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Código Nacional (C.N.)</label>
-                            <input type="text" id="cnMed" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm" placeholder="Ej. 654321">
+                            <input type="text" id="cnMed" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm font-mono" placeholder="Ej. 654321">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Lote</label>
@@ -127,7 +124,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Instrucciones / Notas</label>
-                        <textarea id="notasMed" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm" placeholder="Ej. Tomar con alimentos. Guardar en lugar fresco."></textarea>
+                        <textarea id="notasMed" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm" placeholder="Ej. Tomar con alimentos."></textarea>
                     </div>
                 </div>
                 <div class="mt-6 flex space-x-3">
@@ -138,9 +135,11 @@
         </div>
     </div>
 
-    <!-- Script -->
+    <!-- Script con Memoria Inteligente -->
     <script>
         let medicamentos = JSON.parse(localStorage.getItem('pharma_medicamentos')) || [];
+        // Memoria para recordar qué nombre asociamos a cada código escaneado anteriormente
+        let catalogoConocidos = JSON.parse(localStorage.getItem('pharma_catalogo')) || {};
         let html5QrCode = null;
         let scannerActivo = false;
 
@@ -157,7 +156,7 @@
                 html5QrCode = new Html5Qrcode("reader");
                 const config = {
                     fps: 15,
-                    qrbox: { width: 250, height: 150 },
+                    qrbox: { width: 280, height: 160 },
                     videoConstraints: {
                         width: { ideal: 1280 },
                         height: { ideal: 720 },
@@ -191,18 +190,26 @@
             if (e.target.files.length === 0) return;
             const imageFile = e.target.files[0];
             const html5QrCodeFile = new Html5Qrcode("reader");
+            
             html5QrCodeFile.scanFile(imageFile, true)
                 .then(decodedText => {
                     manejarCodigoEscaneado(decodedText);
                     cerrarScanner();
                 })
-                .catch(() => alert("No se pudo leer ningún código o QR en la imagen."));
+                .catch(err => {
+                    alert("No se pudo leer el código en la imagen. Asegúrate de recortar la foto para que solo se vea el código de barras con buena luz e inténtalo de nuevo.");
+                });
         }
 
         function manejarCodigoEscaneado(codigo) {
-            // Rellenamos el Código Nacional (C.N.) automáticamente con el código escaneado sin inventar nombres
             document.getElementById('cnMed').value = codigo;
-            document.getElementById('nombreMed').value = ""; // Limpiamos para que el usuario escriba el nombre real
+            
+            // Si ya guardamos este código antes, autocompletamos su nombre automáticamente
+            if (catalogoConocidos[codigo]) {
+                document.getElementById('nombreMed').value = catalogoConocidos[codigo];
+            } else {
+                document.getElementById('nombreMed').value = ""; // Limpio para que escribas el nombre nuevo
+            }
             abrirModalManual();
         }
 
@@ -230,6 +237,12 @@
             const dosis = document.getElementById('dosisMed').value || '';
             const fecha = document.getElementById('fechaMed').value;
             const notas = document.getElementById('notasMed').value || '';
+
+            // Guardamos en la memoria inteligente el nombre asociado a este código C.N.
+            if (cn && cn !== 'Sin C.N.' && nombre) {
+                catalogoConocidos[cn] = nombre;
+                localStorage.setItem('pharma_catalogo', JSON.stringify(catalogoConocidos));
+            }
 
             if (id) {
                 const index = medicamentos.findIndex(m => m.id == id);
