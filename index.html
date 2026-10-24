@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PharmaGuard - Control de Medicamentos</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Html5Qrcode con soporte completo para DataMatrix y códigos de barras -->
     <script src="https://unpkg.com/html5-qrcode"></script>
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen pb-12">
@@ -31,7 +34,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <button onclick="abrirScanner()" class="bg-white border-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 p-4 rounded-xl shadow-sm flex items-center justify-center space-x-3 transition font-semibold">
                 <i class="fa-solid fa-qrcode text-2xl"></i>
-                <span>Escanear Código (Cámara HD)</span>
+                <span>Escanear DataMatrix / Barras (HD)</span>
             </button>
             <button onclick="abrirModalManual()" class="bg-emerald-600 hover:bg-emerald-700 text-white p-4 rounded-xl shadow-sm flex items-center justify-center space-x-3 transition font-semibold">
                 <i class="fa-solid fa-plus-circle text-2xl"></i>
@@ -44,7 +47,7 @@
             <div class="flex justify-between items-center mb-3">
                 <h2 class="font-bold text-slate-700 flex items-center space-x-2">
                     <i class="fa-solid fa-camera text-emerald-600"></i>
-                    <span>Escáner Inteligente de Medicamentos</span>
+                    <span>Escáner de DataMatrix y Códigos</span>
                 </h2>
                 <button onclick="cerrarScanner()" class="text-slate-400 hover:text-slate-600 font-bold px-2 py-1">
                     <i class="fa-solid fa-xmark text-xl"></i>
@@ -55,10 +58,10 @@
             
             <!-- Opción alternativa: Subir foto -->
             <div class="mt-4 pt-3 border-t border-slate-100 text-center">
-                <p class="text-xs text-slate-500 mb-2">¿El código se resiste? Sube una foto clara del código de barras:</p>
+                <p class="text-xs text-slate-500 mb-2">¿El DataMatrix o código se resiste? Sube una foto clara del envase:</p>
                 <label class="inline-flex items-center space-x-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer transition">
                     <i class="fa-solid fa-file-image"></i>
-                    <span>Subir foto de código</span>
+                    <span>Subir foto del código</span>
                     <input type="file" id="qr-input-file" accept="image/*" class="hidden" onchange="escanearArchivoImagen(event)">
                 </label>
             </div>
@@ -104,8 +107,8 @@
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Código Nacional (C.N.)</label>
-                            <input type="text" id="cnMed" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm font-mono" placeholder="Ej. 654321">
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Código / DataMatrix (C.N.)</label>
+                            <input type="text" id="cnMed" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm font-mono" placeholder="Ej. Código escaneado">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Lote</label>
@@ -135,10 +138,9 @@
         </div>
     </div>
 
-    <!-- Script con Memoria Inteligente -->
+    <!-- Script con soporte explícito para DataMatrix -->
     <script>
         let medicamentos = JSON.parse(localStorage.getItem('pharma_medicamentos')) || [];
-        // Memoria para recordar qué nombre asociamos a cada código escaneado anteriormente
         let catalogoConocidos = JSON.parse(localStorage.getItem('pharma_catalogo')) || {};
         let html5QrCode = null;
         let scannerActivo = false;
@@ -154,9 +156,22 @@
             document.getElementById('scannerContainer').classList.remove('hidden');
             if (!scannerActivo) {
                 html5QrCode = new Html5Qrcode("reader");
+                
+                // Configuramos explícitamente los formatos admitidos para incluir DataMatrix y códigos de barras farmacéuticos
+                const formatsToSupport = [
+                    Html5QrcodeSupportedFormats.DATA_MATRIX,
+                    Html5QrcodeSupportedFormats.QR_CODE,
+                    Html5QrcodeSupportedFormats.EAN_13,
+                    Html5QrcodeSupportedFormats.EAN_8,
+                    Html5QrcodeSupportedFormats.CODE_128,
+                    Html5QrcodeSupportedFormats.UPC_A,
+                    Html5QrcodeSupportedFormats.UPC_E
+                ];
+
                 const config = {
                     fps: 15,
                     qrbox: { width: 280, height: 160 },
+                    formatsToSupport: formatsToSupport,
                     videoConstraints: {
                         width: { ideal: 1280 },
                         height: { ideal: 720 },
@@ -167,7 +182,15 @@
                 html5QrCode.start({ facingMode: "environment" }, config, (decodedText) => {
                     manejarCodigoEscaneado(decodedText);
                     cerrarScanner();
-                }, () => {});
+                }, () => {}).catch(err => {
+                    console.error("Error al iniciar cámara con formatos:", err);
+                    // Fallback genérico si algún navegador estricto rechaza formatos personalizados
+                    html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (decodedText) => {
+                        manejarCodigoEscaneado(decodedText);
+                        cerrarScanner();
+                    });
+                });
+
                 scannerActivo = true;
             }
         }
@@ -191,24 +214,36 @@
             const imageFile = e.target.files[0];
             const html5QrCodeFile = new Html5Qrcode("reader");
             
-            html5QrCodeFile.scanFile(imageFile, true)
-                .then(decodedText => {
-                    manejarCodigoEscaneado(decodedText);
+            const formatsToSupport = [
+                Html5QrcodeSupportedFormats.DATA_MATRIX,
+                Html5QrcodeSupportedFormats.QR_CODE,
+                Html5QrcodeSupportedFormats.EAN_13,
+                Html5QrcodeSupportedFormats.CODE_128
+            ];
+
+            html5QrCodeFile.scanFileV2(imageFile, formatsToSupport, true)
+                .then(decodedResult => {
+                    manejarCodigoEscaneado(decodedResult.decodedText);
                     cerrarScanner();
                 })
-                .catch(err => {
-                    alert("No se pudo leer el código en la imagen. Asegúrate de recortar la foto para que solo se vea el código de barras con buena luz e inténtalo de nuevo.");
+                .catch(() => {
+                    // Intento estándar si falla el v2
+                    html5QrCodeFile.scanFile(imageFile, true)
+                        .then(decodedText => {
+                            manejarCodigoEscaneado(decodedText);
+                            cerrarScanner();
+                        })
+                        .catch(() => alert("No se pudo leer el DataMatrix o código en la imagen. Asegúrate de enfocar bien solo la zona del código."));
                 });
         }
 
         function manejarCodigoEscaneado(codigo) {
             document.getElementById('cnMed').value = codigo;
             
-            // Si ya guardamos este código antes, autocompletamos su nombre automáticamente
             if (catalogoConocidos[codigo]) {
                 document.getElementById('nombreMed').value = catalogoConocidos[codigo];
             } else {
-                document.getElementById('nombreMed').value = ""; // Limpio para que escribas el nombre nuevo
+                document.getElementById('nombreMed').value = ""; // Limpio para que escribas el nombre real la primera vez
             }
             abrirModalManual();
         }
@@ -238,7 +273,6 @@
             const fecha = document.getElementById('fechaMed').value;
             const notas = document.getElementById('notasMed').value || '';
 
-            // Guardamos en la memoria inteligente el nombre asociado a este código C.N.
             if (cn && cn !== 'Sin C.N.' && nombre) {
                 catalogoConocidos[cn] = nombre;
                 localStorage.setItem('pharma_catalogo', JSON.stringify(catalogoConocidos));
@@ -294,7 +328,7 @@
                             <div>
                                 <h3 class="font-bold text-slate-800 text-sm">${med.nombre}</h3>
                                 <p class="text-xs text-slate-500 space-x-2">
-                                    <span>C.N.: <strong class="text-slate-700 font-mono">${med.cn}</strong></span>
+                                    <span>Código/C.N.: <strong class="text-slate-700 font-mono">${med.cn}</strong></span>
                                     <span>• Lote: <span class="font-mono bg-slate-100 px-1.5 py-0.5 rounded">${med.lote}</span></span>
                                     ${med.dosis ? `<span>• Dosis: <em>${med.dosis}</em></span>` : ''}
                                 </p>
