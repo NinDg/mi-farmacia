@@ -37,13 +37,13 @@
 
         <!-- Panel de Acciones -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <button onclick="abrirScanner()" class="bg-white border-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 p-4 rounded-xl shadow-sm flex items-center justify-center space-x-3 transition font-semibold">
+                <i class="fa-solid fa-barcode text-2xl"></i>
+                <span>Escanear Código de Barras (HD)</span>
+            </button>
             <button onclick="abrirModalManual()" class="bg-emerald-600 hover:bg-emerald-700 text-white p-4 rounded-xl shadow-sm flex items-center justify-center space-x-3 transition font-semibold">
                 <i class="fa-solid fa-plus-circle text-2xl"></i>
-                <span>Añadir por Código Nacional (C.N.)</span>
-            </button>
-            <button onclick="abrirScanner()" class="bg-white border-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 p-4 rounded-xl shadow-sm flex items-center justify-center space-x-3 transition font-semibold">
-                <i class="fa-solid fa-qrcode text-2xl"></i>
-                <span>Escanear con Cámara (Opcional)</span>
+                <span>Añadir Manualmente / C.N.</span>
             </button>
         </div>
 
@@ -52,18 +52,20 @@
             <i class="fa-solid fa-spinner fa-spin mr-2"></i> Consultando base de datos oficial de la AEMPS...
         </div>
 
-        <!-- Sección del Escáner (Oculta por defecto) -->
+        <!-- Sección del Escáner -->
         <div id="scannerContainer" class="hidden bg-white p-4 rounded-2xl shadow-md mb-6 border border-slate-200">
             <div class="flex justify-between items-center mb-3">
                 <h2 class="font-bold text-slate-700 flex items-center space-x-2">
                     <i class="fa-solid fa-camera text-emerald-600"></i>
-                    <span>Cámara en directo</span>
+                    <span>Escáner de Código de Barras (EAN-13)</span>
                 </h2>
                 <button onclick="cerrarScanner()" class="text-slate-400 hover:text-slate-600 font-bold px-2 py-1">
                     <i class="fa-solid fa-xmark text-xl"></i>
                 </button>
             </div>
+            
             <div id="reader" class="w-full rounded-lg overflow-hidden border border-slate-100"></div>
+            <p class="text-xs text-slate-500 text-center mt-3">Enfoca horizontalmente el código de barras alargado de la caja.</p>
         </div>
 
         <!-- Buscador y Filtros -->
@@ -90,7 +92,7 @@
         </div>
     </main>
 
-    <!-- Modal Formulario con Autoconsulta C.N. -->
+    <!-- Modal Formulario -->
     <div id="modalMedicamento" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
@@ -101,21 +103,20 @@
                 <input type="hidden" id="medId">
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Código Nacional (C.N.) - Escribe los 6 dígitos de la caja</label>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Código Nacional (C.N.)</label>
                         <div class="flex space-x-2">
                             <input type="text" id="cnMed" onblur="consultarAempsPorInput(this.value)" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm font-mono font-bold" placeholder="Ej. 887976">
                             <button type="button" onclick="consultarAempsPorInput(document.getElementById('cnMed').value)" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-semibold">Buscar AEMPS</button>
                         </div>
-                        <p class="text-[11px] text-slate-400 mt-1">Al escribir el C.N. y pulsar fuera, la app buscará el nombre oficial automáticamente.</p>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nombre del Medicamento *</label>
-                        <input type="text" id="nombreMed" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm font-semibold text-emerald-800 bg-emerald-50/30" placeholder="Se rellenará solo con la AEMPS">
+                        <input type="text" id="nombreMed" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm font-semibold text-emerald-800 bg-emerald-50/30" placeholder="Rellenado automáticamente por la AEMPS">
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Lote</label>
-                            <input type="text" id="loteMed" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm" placeholder="Ej. Lote">
+                            <input type="text" id="loteMed" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm" placeholder="Ej. Lote 123">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Fecha de Caducidad *</label>
@@ -129,7 +130,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Instrucciones / Notas</label>
-                            <input type="text" id="notasMed" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm" placeholder="Ej. Guardar en nevera">
+                            <input type="text" id="notasMed" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm" placeholder="Ej. Guardar en lugar fresco">
                         </div>
                     </div>
                 </div>
@@ -141,7 +142,7 @@
         </div>
     </div>
 
-    <!-- Script con Consulta Automática por C.N. -->
+    <!-- Script con soporte optimizado para EAN-13 y AEMPS -->
     <script>
         let medicamentos = JSON.parse(localStorage.getItem('pharma_medicamentos')) || [];
         let catalogoNombres = JSON.parse(localStorage.getItem('pharma_catalogo_nombres')) || {};
@@ -155,12 +156,19 @@
             }
         });
 
-        // Consulta directa a la API de la AEMPS introduciendo el C.N.
         async function consultarAempsPorInput(cn) {
             let cnLimpio = cn.trim().replace(/\D/g, '');
+            if (cnLimpio.length > 6 && cnLimpio.startsWith('84')) {
+                // Si es un código EAN-13 de 13 dígitos (ej. 8470008879762), extraemos los 6 dígitos del C.N.
+                cnLimpio = cnLimpio.substring(6, 12);
+                document.getElementById('cnMed').value = cnLimpio;
+            } else if (cnLimpio.length > 6) {
+                cnLimpio = cnLimpio.slice(-6);
+                document.getElementById('cnMed').value = cnLimpio;
+            }
+
             if (!cnLimpio || cnLimpio.length < 6) return;
             
-            // Si ya lo tenemos guardado en memoria local rápida
             if (catalogoNombres[cnLimpio]) {
                 document.getElementById('nombreMed').value = catalogoNombres[cnLimpio];
                 return;
@@ -176,10 +184,8 @@
                         catalogoNombres[cnLimpio] = data.nombre;
                         localStorage.setItem('pharma_catalogo_nombres', JSON.stringify(catalogoNombres));
                     } else {
-                        alert("No se encontró ningún medicamento con ese C.N. en la AEMPS.");
+                        alert("C.N. válido pero no encontrado en AEMPS. Puedes escribir el nombre manualmente.");
                     }
-                } else {
-                    alert("Error al conectar con la base de datos de la AEMPS.");
                 }
             } catch (error) {
                 console.error("Error AEMPS:", error);
@@ -192,10 +198,33 @@
             document.getElementById('scannerContainer').classList.remove('hidden');
             if (!scannerActivo) {
                 html5QrCode = new Html5Qrcode("reader");
-                html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: { width: 250, height: 150 } }, (decodedText) => {
-                    procesarCodigoDecodificado(decodedText);
+                
+                // Priorizamos el escaneo rápido de códigos de barras lineales (EAN_13)
+                const formatsToSupport = [
+                    Html5QrcodeSupportedFormats.EAN_13,
+                    Html5QrcodeSupportedFormats.EAN_8,
+                    Html5QrcodeSupportedFormats.CODE_128,
+                    Html5QrcodeSupportedFormats.UPC_A
+                ];
+
+                const config = {
+                    fps: 20,
+                    qrbox: { width: 300, height: 120 },
+                    formatsToSupport: formatsToSupport,
+                    videoConstraints: {
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        facingMode: "environment"
+                    }
+                };
+
+                html5QrCode.start({ facingMode: "environment" }, config, (decodedText) => {
+                    procesarCodigoBarras(decodedText);
                     cerrarScanner();
-                }, () => {}).catch(() => {});
+                }, () => {}).catch(err => {
+                    console.error("Error al iniciar cámara:", err);
+                });
+
                 scannerActivo = true;
             }
         }
@@ -214,16 +243,8 @@
             }
         }
 
-        async function procesarCodigoDecodificado(textoBruto) {
-            let matchGtin = textoBruto.match(/01(\d{14})/);
-            let cnLimpio = "";
-            if (matchGtin) {
-                cnLimpio = matchGtin[1].substring(7, 13).replace(/^0+/, '');
-            } else {
-                cnLimpio = textoBruto.replace(/\D/g, '').slice(-6);
-            }
-            document.getElementById('cnMed').value = cnLimpio;
-            consultarAempsPorInput(cnLimpio);
+        function procesarCodigoBarras(codigo) {
+            consultarAempsPorInput(codigo);
             abrirModalManual();
         }
 
