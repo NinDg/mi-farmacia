@@ -37,13 +37,13 @@
 
         <!-- Panel de Acciones -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <button onclick="abrirScanner()" class="bg-white border-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 p-4 rounded-xl shadow-sm flex items-center justify-center space-x-3 transition font-semibold">
-                <i class="fa-solid fa-qrcode text-2xl"></i>
-                <span>Escanear DataMatrix / Barras (HD)</span>
-            </button>
             <button onclick="abrirModalManual()" class="bg-emerald-600 hover:bg-emerald-700 text-white p-4 rounded-xl shadow-sm flex items-center justify-center space-x-3 transition font-semibold">
                 <i class="fa-solid fa-plus-circle text-2xl"></i>
-                <span>Añadir Manualmente</span>
+                <span>Añadir por Código Nacional (C.N.)</span>
+            </button>
+            <button onclick="abrirScanner()" class="bg-white border-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 p-4 rounded-xl shadow-sm flex items-center justify-center space-x-3 transition font-semibold">
+                <i class="fa-solid fa-qrcode text-2xl"></i>
+                <span>Escanear con Cámara (Opcional)</span>
             </button>
         </div>
 
@@ -52,28 +52,18 @@
             <i class="fa-solid fa-spinner fa-spin mr-2"></i> Consultando base de datos oficial de la AEMPS...
         </div>
 
-        <!-- Sección del Escáner -->
+        <!-- Sección del Escáner (Oculta por defecto) -->
         <div id="scannerContainer" class="hidden bg-white p-4 rounded-2xl shadow-md mb-6 border border-slate-200">
             <div class="flex justify-between items-center mb-3">
                 <h2 class="font-bold text-slate-700 flex items-center space-x-2">
                     <i class="fa-solid fa-camera text-emerald-600"></i>
-                    <span>Escáner Inteligente DataMatrix</span>
+                    <span>Cámara en directo</span>
                 </h2>
                 <button onclick="cerrarScanner()" class="text-slate-400 hover:text-slate-600 font-bold px-2 py-1">
                     <i class="fa-solid fa-xmark text-xl"></i>
                 </button>
             </div>
-            
             <div id="reader" class="w-full rounded-lg overflow-hidden border border-slate-100"></div>
-            
-            <div class="mt-4 pt-3 border-t border-slate-100 text-center">
-                <p class="text-xs text-slate-500 mb-2">Sube una foto clara del DataMatrix si la cámara directa no enfoca:</p>
-                <label class="inline-flex items-center space-x-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer transition">
-                    <i class="fa-solid fa-file-image"></i>
-                    <span>Subir foto del DataMatrix</span>
-                    <input type="file" id="qr-input-file" accept="image/*" class="hidden" onchange="escanearArchivoImagen(event)">
-                </label>
-            </div>
         </div>
 
         <!-- Buscador y Filtros -->
@@ -100,7 +90,7 @@
         </div>
     </main>
 
-    <!-- Modal Formulario -->
+    <!-- Modal Formulario con Autoconsulta C.N. -->
     <div id="modalMedicamento" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
@@ -111,17 +101,25 @@
                 <input type="hidden" id="medId">
                 <div class="space-y-4">
                     <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Código Nacional (C.N.) - Escribe los 6 dígitos de la caja</label>
+                        <div class="flex space-x-2">
+                            <input type="text" id="cnMed" onblur="consultarAempsPorInput(this.value)" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm font-mono font-bold" placeholder="Ej. 887976">
+                            <button type="button" onclick="consultarAempsPorInput(document.getElementById('cnMed').value)" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-semibold">Buscar AEMPS</button>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-1">Al escribir el C.N. y pulsar fuera, la app buscará el nombre oficial automáticamente.</p>
+                    </div>
+                    <div>
                         <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nombre del Medicamento *</label>
-                        <input type="text" id="nombreMed" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm font-semibold text-emerald-800 bg-emerald-50/30" placeholder="Se rellenará con la AEMPS o puedes editarlo">
+                        <input type="text" id="nombreMed" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm font-semibold text-emerald-800 bg-emerald-50/30" placeholder="Se rellenará solo con la AEMPS">
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Código Nacional (C.N.)</label>
-                            <input type="text" id="cnMed" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm font-mono" placeholder="Ej. 887976">
-                        </div>
-                        <div>
                             <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Lote</label>
                             <input type="text" id="loteMed" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm" placeholder="Ej. Lote">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Fecha de Caducidad *</label>
+                            <input type="date" id="fechaMed" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm">
                         </div>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -130,13 +128,9 @@
                             <input type="text" id="dosisMed" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm" placeholder="Ej. 1 comp. cada 8h">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Fecha de Caducidad *</label>
-                            <input type="date" id="fechaMed" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm">
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Instrucciones / Notas</label>
+                            <input type="text" id="notasMed" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm" placeholder="Ej. Guardar en nevera">
                         </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Instrucciones / Notas</label>
-                        <textarea id="notasMed" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm" placeholder="Ej. Aplicar en la zona afectada."></textarea>
                     </div>
                 </div>
                 <div class="mt-6 flex space-x-3">
@@ -147,7 +141,7 @@
         </div>
     </div>
 
-    <!-- Script Corregido con Extracción Real del C.N. para la AEMPS -->
+    <!-- Script con Consulta Automática por C.N. -->
     <script>
         let medicamentos = JSON.parse(localStorage.getItem('pharma_medicamentos')) || [];
         let catalogoNombres = JSON.parse(localStorage.getItem('pharma_catalogo_nombres')) || {};
@@ -161,40 +155,47 @@
             }
         });
 
+        // Consulta directa a la API de la AEMPS introduciendo el C.N.
+        async function consultarAempsPorInput(cn) {
+            let cnLimpio = cn.trim().replace(/\D/g, '');
+            if (!cnLimpio || cnLimpio.length < 6) return;
+            
+            // Si ya lo tenemos guardado en memoria local rápida
+            if (catalogoNombres[cnLimpio]) {
+                document.getElementById('nombreMed').value = catalogoNombres[cnLimpio];
+                return;
+            }
+
+            document.getElementById('loadingAemps').classList.remove('hidden');
+            try {
+                const response = await fetch(`https://cima.aemps.es/cima/rest/medicamento?cn=${cnLimpio}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data && data.nombre) {
+                        document.getElementById('nombreMed').value = data.nombre;
+                        catalogoNombres[cnLimpio] = data.nombre;
+                        localStorage.setItem('pharma_catalogo_nombres', JSON.stringify(catalogoNombres));
+                    } else {
+                        alert("No se encontró ningún medicamento con ese C.N. en la AEMPS.");
+                    }
+                } else {
+                    alert("Error al conectar con la base de datos de la AEMPS.");
+                }
+            } catch (error) {
+                console.error("Error AEMPS:", error);
+            } finally {
+                document.getElementById('loadingAemps').classList.add('hidden');
+            }
+        }
+
         function abrirScanner() {
             document.getElementById('scannerContainer').classList.remove('hidden');
             if (!scannerActivo) {
                 html5QrCode = new Html5Qrcode("reader");
-                
-                const formatsToSupport = [
-                    Html5QrcodeSupportedFormats.DATA_MATRIX,
-                    Html5QrcodeSupportedFormats.QR_CODE,
-                    Html5QrcodeSupportedFormats.EAN_13,
-                    Html5QrcodeSupportedFormats.EAN_8,
-                    Html5QrcodeSupportedFormats.CODE_128
-                ];
-
-                const config = {
-                    fps: 15,
-                    qrbox: { width: 300, height: 180 },
-                    formatsToSupport: formatsToSupport,
-                    videoConstraints: {
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 },
-                        facingMode: "environment"
-                    }
-                };
-
-                html5QrCode.start({ facingMode: "environment" }, config, (decodedText) => {
-                    procesarCodigoEscaneado(decodedText);
+                html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: { width: 250, height: 150 } }, (decodedText) => {
+                    procesarCodigoDecodificado(decodedText);
                     cerrarScanner();
-                }, () => {}).catch(() => {
-                    html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (decodedText) => {
-                        procesarCodigoEscaneado(decodedText);
-                        cerrarScanner();
-                    });
-                });
-
+                }, () => {}).catch(() => {});
                 scannerActivo = true;
             }
         }
@@ -213,112 +214,17 @@
             }
         }
 
-        function escanearArchivoImagen(e) {
-            if (e.target.files.length === 0) return;
-            const imageFile = e.target.files[0];
-            const html5QrCodeFile = new Html5Qrcode("reader");
-            
-            const formatsToSupport = [
-                Html5QrcodeSupportedFormats.DATA_MATRIX,
-                Html5QrcodeSupportedFormats.QR_CODE,
-                Html5QrcodeSupportedFormats.EAN_13,
-                Html5QrcodeSupportedFormats.CODE_128
-            ];
-
-            html5QrCodeFile.scanFileV2(imageFile, formatsToSupport, true)
-                .then(decodedResult => {
-                    procesarCodigoDecodificado(decodedResult.decodedText);
-                    cerrarScanner();
-                })
-                .catch(() => {
-                    html5QrCodeFile.scanFile(imageFile, true)
-                        .then(decodedText => {
-                            procesarCodigoDecodificado(decodedText);
-                            cerrarScanner();
-                        })
-                        .catch(() => alert("No se pudo leer el código en la imagen. Enfoca bien la zona del DataMatrix."));
-                });
-        }
-
         async function procesarCodigoDecodificado(textoBruto) {
-            document.getElementById('loteMed').value = "";
-            document.getElementById('fechaMed').value = "";
-            document.getElementById('nombreMed').value = "Consultando AEMPS...";
-
-            // 1. Extraer el C.N. limpio de 6 dígitos
-            let cnLimpio = extraerCodigoNacionalReal(textoBruto);
-            document.getElementById('cnMed').value = cnLimpio;
-
-            // 2. Extraer Fecha Caducidad GS1 (AI '17')
-            let matchCad = textoBruto.match(/17(\d{2})(\d{2})(\d{2})/);
-            if (matchCad) {
-                let yy = "20" + matchCad[1];
-                let mm = matchCad[2];
-                let dd = matchCad[3];
-                if (dd === "00") dd = "01";
-                document.getElementById('fechaMed').value = `${yy}-${mm}-${dd}`;
-            }
-
-            // 3. Extraer Lote GS1 (AI '10')
-            let matchLote = textoBruto.match(/10([A-Za-z0-9\-]+)/);
-            if (matchLote) {
-                document.getElementById('loteMed').value = matchLote[1].substring(0, 15);
-            }
-
-            // 4. Buscar nombre: primero en memoria local rápida, si no, consultar AEMPS con el C.N. de 6 dígitos
-            if (catalogoNombres[cnLimpio]) {
-                document.getElementById('nombreMed').value = catalogoNombres[cnLimpio];
-                document.getElementById('loadingAemps').classList.add('hidden');
-            } else if (cnLimpio && cnLimpio.length === 6) {
-                document.getElementById('loadingAemps').classList.remove('hidden');
-                try {
-                    const response = await fetch(`https://cima.aemps.es/cima/rest/medicamento?cn=${cnLimpio}`);
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data && data.nombre) {
-                            document.getElementById('nombreMed').value = data.nombre;
-                            catalogoNombres[cnLimpio] = data.nombre;
-                            localStorage.setItem('pharma_catalogo_nombres', JSON.stringify(catalogoNombres));
-                        } else {
-                            document.getElementById('nombreMed').value = "";
-                        }
-                    } else {
-                        document.getElementById('nombreMed').value = "";
-                    }
-                } catch (error) {
-                    console.error("Error consultando AEMPS:", error);
-                    document.getElementById('nombreMed').value = "";
-                } finally {
-                    document.getElementById('loadingAemps').classList.add('hidden');
-                }
-            } else {
-                document.getElementById('nombreMed').value = "";
-                document.getElementById('loadingAemps').classList.add('hidden');
-            }
-
-            abrirModalManual();
-        }
-
-        // Extractor ultrapreciso para obtener el C.N. de 6 dígitos de España desde un DataMatrix o código de barras
-        function extraerCodigoNacionalReal(texto) {
-            // Si viene en formato GS1 con el GTIN de 14 dígitos (ej. empieza con 01...)
-            let matchGtin = texto.match(/01(\d{14})/);
+            let matchGtin = textoBruto.match(/01(\d{14})/);
+            let cnLimpio = "";
             if (matchGtin) {
-                let gtin14 = matchGtin[1];
-                // En España, el C.N. de 6 dígitos va de la posición 8 a la 13 del GTIN-14
-                return gtin14.substring(7, 13).replace(/^0+/, '');
+                cnLimpio = matchGtin[1].substring(7, 13).replace(/^0+/, '');
+            } else {
+                cnLimpio = textoBruto.replace(/\D/g, '').slice(-6);
             }
-            // Si es un código de barras EAN-13 completo (como el 8470008879762)
-            if (texto.length === 13 && texto.startsWith('84')) {
-                // El C.N. en los EAN nacionales de farmacia suele estar en los dígitos del 7 al 12
-                return texto.substring(6, 12);
-            }
-            // Si ya es un número corto
-            let limpio = texto.replace(/\D/g, '');
-            if (limpio.length >= 6) {
-                return limpio.substring(limpio.length - 6);
-            }
-            return texto;
+            document.getElementById('cnMed').value = cnLimpio;
+            consultarAempsPorInput(cnLimpio);
+            abrirModalManual();
         }
 
         function abrirModalManual() {
@@ -341,11 +247,6 @@
             const fecha = document.getElementById('fechaMed').value;
             const notas = document.getElementById('notasMed').value || '';
 
-            if (cn && cn !== 'Sin C.N.' && nombre) {
-                catalogoNombres[cn] = nombre;
-                localStorage.setItem('pharma_catalogo_nombres', JSON.stringify(catalogoNombres));
-            }
-
             if (id) {
                 const index = medicamentos.findIndex(m => m.id == id);
                 if (index !== -1) medicamentos[index] = { id: Number(id), nombre, cn, lote, dosis, fecha, notas };
@@ -359,12 +260,11 @@
         }
 
         function forzarLimpiezaTotal() {
-            if(confirm("¿Deseas reiniciar todos los datos y la memoria?")) {
+            if(confirm("¿Deseas reiniciar todos los datos?")) {
                 localStorage.clear();
                 medicamentos = [];
-                catalogoNombres = {};
                 renderizarMedicamentos();
-                alert("Memoria restablecida por completo.");
+                alert("Memoria restablecida.");
             }
         }
 
@@ -430,8 +330,8 @@
             const med = medicamentos.find(m => m.id === id);
             if (med) {
                 document.getElementById('medId').value = med.id;
-                document.getElementById('nombreMed').value = med.nombre;
                 document.getElementById('cnMed').value = med.cn;
+                document.getElementById('nombreMed').value = med.nombre;
                 document.getElementById('loteMed').value = med.lote;
                 document.getElementById('dosisMed').value = med.dosis;
                 document.getElementById('fechaMed').value = med.fecha;
